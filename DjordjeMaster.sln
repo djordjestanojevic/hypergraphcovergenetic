@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DjordjeMaster", "DjordjeMaster\DjordjeMaster.vcxproj", "{CD633E82-5868-4583-A6B2-C30641713C21}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CD633E82-5868-4583-A6B2-C30641713C21}.Debug|x64.ActiveCfg = Debug|x64
+		{CD633E82-5868-4583-A6B2-C30641713C21}.Debug|x64.Build.0 = Debug|x64
+		{CD633E82-5868-4583-A6B2-C30641713C21}.Debug|x86.ActiveCfg = Debug|Win32
+		{CD633E82-5868-4583-A6B2-C30641713C21}.Debug|x86.Build.0 = Debug|Win32
+		{CD633E82-5868-4583-A6B2-C30641713C21}.Release|x64.ActiveCfg = Release|x64
+		{CD633E82-5868-4583-A6B2-C30641713C21}.Release|x64.Build.0 = Release|x64
+		{CD633E82-5868-4583-A6B2-C30641713C21}.Release|x86.ActiveCfg = Release|Win32
+		{CD633E82-5868-4583-A6B2-C30641713C21}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {97CE1EDA-CF3E-4A25-8EEA-C952BEB5364C}
+	EndGlobalSection
+EndGlobal
