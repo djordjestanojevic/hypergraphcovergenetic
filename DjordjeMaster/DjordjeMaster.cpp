@@ -5,117 +5,45 @@
 #include <vector>
 #include"Hypergraph.h"
 #include"Unit.h"
+#include"FileParser.h"
 #include"Population.h"
+#include"OutputGenerator.h"
 #include<utility>
 
 int main()
-{/*
-    std::vector<int> vertices = {0, 1, 2, 3, 4, 5};
-    std::vector<std::vector<int>> hyperedges = { {0,1,2},{0,3},{3,4,5}, {2,3},{0,1,5} };
-    Hypergraph graph = Hypergraph(vertices, hyperedges);
-
-    std::vector<int> array = { 1,0,0,1,1,0 };
-    Population population = Population(graph, 0, 5, 0.3);
-
-    std::cout << "Population \n";
-
-    for (auto unit : population.population)
-    {
-        for (auto vertex : unit.unit)
-        {
-            std::cout << vertex << " ";
-        }
-        std::cout << std::endl;
-    }
-
-
-    std::cout << "Parents: \n";
-    std::pair<Unit, Unit> pair = population.selectionRoulette();
-    Unit parent1 = pair.first;
-    Unit parent2 = pair.second;
-    for (auto vertex : parent1.unit)
-    {
-        std::cout << vertex << " ";
-    }
-    std::cout << std::endl;
-
-    for (auto vertex : parent2.unit)
-    {
-        std::cout << vertex << " ";
-    }
-    std::cout << std::endl;
+{
+    //std::vector<int> vertices = {0, 1, 2, 3, 4, 5,6,7,8,9};
+    //std::vector<std::vector<int>> hyperedges = { {0},{0,1}, {0,2,3},{1},{0,4,5}, {1,6},{6},{6,7},{6,8},{7},{9,3},{8}, {8,5} };
+    //Hypergraph graph = Hypergraph(vertices, hyperedges);
     
-    //pair = population.uniformCrossover(parent1, parent2, 0.5);
-
-    Unit child1 = pair.first;
-    Unit child2 = pair.second;
-
     
-    std::cout << "Child1 after crossover \n";
-    for (auto vertex : child1.unit)
-    {
-        std::cout << vertex << " ";
-    }
-    std::cout << std::endl;
 
-    child1.adjustToAllowed();
-
-
-    std::cout << "Child1 after adjustment\n";
-    for (auto vertex : child1.unit)
-    {
-        std::cout << vertex << " ";
-    }
-    std::cout << std::endl;
-
-
-
-    std::cout << "Child2 after crossover \n";
-    for (auto vertex : child2.unit)
-    {
-        std::cout << vertex << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Child2 after adjustment\n";
-
-    child2.adjustToAllowed();
-    for (auto vertex : child2.unit)
-    {
-        std::cout << vertex << " ";
-    }
-    std::cout << std::endl;
-
-    child1.mutate(1.0);
-    std::cout << "Child1 after mutation\n";
-
-    for (auto vertex : child1.unit)
-    {
-        std::cout << vertex << " ";
-    }
-    std::cout << std::endl;
+    FileParser fileParser = FileParser("C:/Users/Djordje/OneDrive/Desktop/demofile2.txt");
+    //std::vector<int> array = { 1,0,0,1,1,0 };
+    Hypergraph graph = fileParser.getHypergraph();
     
-    child1.adjustToAllowed();
 
+    Population population = Population(graph, 6, 0.3 );
+    
+    population.generationLimit = 20;
+    population.plateauLimit = 5;
+    population.valueLimit = 4;
+    population.uniformCrossoverProbability = 0.5;
 
-    std::cout << "Child1 after adjustment\n";
-
-    for (auto vertex : child1.unit)
+    std::vector<int> combinations = {8,23,37,67};
+    for (auto i: combinations)
     {
-        std::cout << vertex << " ";
+        population.setOperatorCombination(i);
+        population.evolve();
+        break;
     }
-    std::cout << std::endl;
-
-
-
-    // inicijalizuj sve
-    // pokreni evoluciju za sve brojeve (svaki broj jedna kombinacija)
-
-    for (int i = 0; i < 12; i++)
+    
+    for (auto v : population.bestUnit.unit)
     {
-
+        std::cout << v << " ";
     }
-    */
+
+    std::cout << "\nFitness: " << population.bestUnit.fitness() << " ";
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

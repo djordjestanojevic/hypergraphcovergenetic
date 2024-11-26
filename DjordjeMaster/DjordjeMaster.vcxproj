@@ -128,11 +128,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DjordjeMaster.cpp" />
+    <ClCompile Include="FileParser.cpp" />
+    <ClCompile Include="OutputGenerator.cpp" />
     <ClCompile Include="Population.cpp" />
     <ClCompile Include="Hypergraph.cpp" />
     <ClCompile Include="Unit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FileParser.h" />
+    <ClInclude Include="OutputGenerator.h" />
     <ClInclude Include="Population.h" />
     <ClInclude Include="Hypergraph.h" />
     <ClInclude Include="Unit.h" />

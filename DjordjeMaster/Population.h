@@ -3,12 +3,13 @@
 #include<utility>
 #include"Hypergraph.h"
 #include"Unit.h"
+#include"OutputGenerator.h"
 #include<random>
 class Population
 {
 public:
 	Population();
-	Population(Hypergraph _hypergraph, int _operatorCombination, int _populationSize, double _alleleProbability);
+	Population(Hypergraph _hypergraph, int _populationSize, double _alleleProbability);
 	
 	void createPopulation();
 	void evolve();
@@ -21,26 +22,37 @@ public:
 	std::pair<Unit, Unit> multipointCrossover(std::pair<Unit, Unit> _parents);
 	std::pair<Unit, Unit> uniformCrossover(std::pair<Unit, Unit> _parents);
 
-	void replaceGeneration(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children);
-	void replaceEntire(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children);
-	void replaceElite(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children);
+	void addChildren(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children);
+	void addEntire(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children);
+	void addElite(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children);
+	void replaceGeneration();
 
+	void mutateAndAdjust(std::pair<Unit, Unit>& _children);
+	
 	bool stopCriterion();
 	bool iterationCriterion();
 	bool plateauCriterion();
 	bool valueCriterion();
 
+	int getOperatorCombination();
+	void setOperatorCombination(int _combination);
+
+	void printGeneration();
+
 
 	std::vector<Unit>	population;
-	
+	std::vector<Unit>	newPopulation;
+	Unit				bestUnit;
+	int					generationLimit, plateauLimit, valueLimit;
+	int					k, crossoverPoints;
+	double				uniformCrossoverProbability;
+	OutputGenerator		outputGenerator;
 private:
 	Hypergraph			hypergraph;
 	int					populationSize;
 	int					generation, plateauCounter;
-	int					generationLimit, plateauLimit, valueLimit;
 	int					maxFitness;
-	int					k, crossoverPoints;
-	double				alleleProbability, uniformCrossoverProbability;
+	double				alleleProbability;
 	int					operatorCombination;
 };
 

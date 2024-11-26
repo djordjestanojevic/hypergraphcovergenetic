@@ -8,8 +8,8 @@ public:
 	Unit(Hypergraph _hypergraph, double _alleleProbability);
 	Unit(Hypergraph _hypergraph, std::vector<int> _array);
 	int fitness();
-	void mutate(double _r);
-	void adjustToAllowed();
+	bool mutate(double _r);
+	bool adjustToAllowed();
 	int index;
 	Hypergraph hypergraph;
 	std::vector<int> unit;

@@ -2,6 +2,7 @@
 #include<numeric>
 #include<time.h>
 #include<algorithm>
+#include<string>
 
 /// <summary>
 /// Constructor for Population class
@@ -9,9 +10,9 @@
 /// <param name="_hypergraph">Hypergraph</param>
 /// <param name="_populationSize">int</param>
 /// <param name="_alleleProbability">int</param>
-Population::Population(Hypergraph _hypergraph, int _operationCombination, int _populationSize, double _alleleProbability)
+Population::Population(Hypergraph _hypergraph, int _populationSize, double _alleleProbability)
 	: hypergraph(_hypergraph)
-	, operatorCombination(_operationCombination)
+	, operatorCombination(0)
 	, populationSize(_populationSize)
 	, alleleProbability(_alleleProbability)
 	, generation(0)
@@ -20,6 +21,11 @@ Population::Population(Hypergraph _hypergraph, int _operationCombination, int _p
 	, generationLimit(0)
 	, maxFitness(0)
 	, valueLimit(_hypergraph.getVertices().size())
+	, bestUnit(_hypergraph, 1)
+	, crossoverPoints(0)
+	, uniformCrossoverProbability(0)
+	, k(0)
+	, outputGenerator("C:/Users/Djordje/OneDrive/Desktop/output.txt")
 {
 	for (int i = 0; i < populationSize; i++)
 	{
@@ -80,6 +86,11 @@ std::pair<Unit, Unit> Population::selectionRoulette()
 	}
 	population[parent1].index = parent1;
 	population[parent2].index = parent2;
+
+	outputGenerator.append("Roulette selection " + std::to_string(r1) + ", " + std::to_string(r2));
+	outputGenerator.append(population[parent1], "Selected parent: " + std::to_string(parent1) + " ");
+	outputGenerator.append(population[parent2], "Selected parent: " + std::to_string(parent2) + " ");
+
 	return std::make_pair(population[parent1], population[parent2]);
 }
 
@@ -96,7 +107,7 @@ Unit Population::selectionTournament()
 	
 	std::random_device					device;
 	std::mt19937						generator(device());
-	std::uniform_int_distribution<>		distribution(0, hypergraph.getVertices().size()-1);
+	std::uniform_int_distribution<>		distribution(0, populationSize-1);
 
 
 	for (int i = 0; i < k; i++)
@@ -110,30 +121,69 @@ Unit Population::selectionTournament()
 	}
 	population[currentIndex].index = currentIndex;
 
+	outputGenerator.append(std::to_string(k) + "- tournament selection");
+	outputGenerator.append(population[currentIndex],"Selected parent: " + std::to_string(currentIndex) + " ");
+
 	return population[currentIndex];
+}
+
+
+void Population::printGeneration()
+{
+	outputGenerator.append("Generation " + std::to_string(generation) + " Plateau " + std::to_string(plateauCounter) + " Max value " + std::to_string(maxFitness));
+
+	for (int i = 0; i<populationSize; i++)
+	{
+		outputGenerator.append(population[i], std::to_string(i) + ": ");
+	}
+
 }
 
 void Population::evolve() 
 {
 	while (stopCriterion())
 	{
-		//std::pair<Unit, Unit> parents, children;
+		generation++;
+		plateauCounter++;
+
+		printGeneration();
+
 		for (int i = 0; i < populationSize / 2; i++)
 		{
 			std::pair<Unit, Unit> parents = selectParents();
 			std::pair<Unit, Unit> children = crossover(parents);
 
-			replaceGeneration(parents, children);
+			mutateAndAdjust(children);
+
+			if (children.first.fitness() > maxFitness)
+			{
+				bestUnit = children.first;
+				maxFitness = children.first.fitness();
+				plateauCounter = 0;
+			}
+			if (children.second.fitness() > maxFitness)
+			{
+				bestUnit = children.second;
+				maxFitness = children.second.fitness();
+				plateauCounter = 0;
+			}
+
+			addChildren(parents, children);
 		}
+
+		replaceGeneration();
 	}
 }
 
-void Population::replaceEntire(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children)
+void Population::addEntire(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children)
 {
-	population[_parents.first.index] = _children.first;
-	population[_parents.second.index] = _children.second;
+	newPopulation.push_back(_children.first);
+	newPopulation.push_back(_children.second);
+
+	outputGenerator.append("Full replacement");
 }
-void Population::replaceElite(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children)
+
+void Population::addElite(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children)
 {
 	Unit parent1 = _parents.first;
 	Unit parent2 = _parents.second;
@@ -144,36 +194,63 @@ void Population::replaceElite(std::pair<Unit, Unit> _parents, std::pair<Unit, Un
 	std::vector<Unit> array = { parent1, parent2, child1, child2 };
 	std::sort(array.begin(), array.end(), [](Unit _unit1, Unit _unit2) {return _unit1.fitness() > _unit2.fitness(); });
 
-	population[parent1.index] = array[0];
-	population[parent2.index] = array[1];
+	newPopulation.push_back(array[0]);
+	newPopulation.push_back(array[1]);
 
+	outputGenerator.append(array[0], "New gen1: ");
+	outputGenerator.append(array[1], "New gen2: ");
 }
 
-void Population::replaceGeneration(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children)
+void Population::addChildren(std::pair<Unit, Unit> _parents, std::pair<Unit, Unit> _children)
 {
-	if (operatorCombination % 12 > 5)
-		return replaceEntire(_parents, _children);
+	if (operatorCombination % 2)
+		return addEntire(_parents, _children);
 	else
-		return replaceElite(_parents, _children);
+		return addElite(_parents, _children);
+}
+
+void Population::replaceGeneration()
+{
+	population = newPopulation;
+	newPopulation = {};
 }
 
 std::pair<Unit, Unit> Population::selectParents()
 {
-	if (operatorCombination % 1)
+	if (operatorCombination < 18)
 		return selectionRoulette();
 
-	Unit parent1 = selectionTournament();
-	Unit parent2 = selectionTournament();
+	if (operatorCombination < 54)
+	{
+		k = operatorCombination < 36 ? 2 : 3;
+		Unit parent1 = selectionTournament();
+		Unit parent2 = selectionTournament();
 
-	return std::make_pair(parent1, parent2);
+		return std::make_pair(parent1, parent2);
+	}
+
+	if (generation > generationLimit / 2)
+	{
+		return selectionRoulette();
+	}
+	else
+	{
+		k = 2;
+		Unit parent1 = selectionTournament();
+		Unit parent2 = selectionTournament();
+
+		return std::make_pair(parent1, parent2);
+	
+
+	}
 }
 
 bool Population::stopCriterion()
 {
-	if (operatorCombination % 3 == 0)
+	if (operatorCombination % 6 < 2)
 		return iterationCriterion();
 
-	if (operatorCombination % 3 == 1)
+	if (operatorCombination % 6 < 4)
 		return plateauCriterion();
 	
 	return valueCriterion();
@@ -221,6 +298,11 @@ std::pair<Unit, Unit> Population::uniformCrossover(std::pair<Unit, Unit> _parent
 		}
 	}
 
+	outputGenerator.append("Uniform crossover");
+	outputGenerator.append(child1, "Child 1: ");
+	outputGenerator.append(child2, "Child 2: ");
+
+
 	return std::make_pair(Unit(hypergraph, child1), Unit(hypergraph, child2));
 }
 
@@ -251,25 +333,31 @@ std::pair<Unit, Unit> Population::multipointCrossover(std::pair<Unit, Unit> _par
 
 	for (i = 0; i < crossoverPoints; i++)
 	{
-		indices[i] = distribution(generator);
+		indices.push_back(distribution(generator));
 	}
 
 	std::sort(indices.begin(), indices.end());
+
+	while ((currentIndex < crossoverPoints) && (indices[currentIndex] == 0))
+	{
+		indicator = not indicator;
+		currentIndex++;
+	}
 
 	for (i=0 ; i< parent1.unit.size() && currentIndex<crossoverPoints; i++  )
 	{
 		if (indicator) 
 		{
-			child1[i] = parent1.unit[i];
-			child2[i] = parent2.unit[i];
+			child1.push_back(parent1.unit[i]);
+			child2.push_back(parent2.unit[i]);
 		}
 		else
 		{
-			child1[i] = parent2.unit[i];
-			child2[i] = parent1.unit[i];
+			child1.push_back(parent2.unit[i]);
+			child2.push_back(parent1.unit[i]);
 		}
 
-		while (i+1 == indices[currentIndex])
+		while ((currentIndex < crossoverPoints) && (i+1 == indices[currentIndex]))
 		{
 			indicator = not indicator;
 			currentIndex++;
@@ -279,16 +367,19 @@ std::pair<Unit, Unit> Population::multipointCrossover(std::pair<Unit, Unit> _par
 	{
 		if (indicator)
 		{
-			child1[i] = parent1.unit[i];
-			child2[i] = parent2.unit[i];
+			child1.push_back(parent1.unit[i]);
+			child2.push_back(parent2.unit[i]);
 		}
 		else
 		{
-			child1[i] = parent2.unit[i];
-			child2[i] = parent1.unit[i];
+			child1.push_back(parent2.unit[i]);
+			child2.push_back(parent1.unit[i]);
 		}
 	}
 
+	outputGenerator.append(std::to_string(crossoverPoints) + "- point crossover: " + std::to_string(indices[0]) + ", " + (crossoverPoints==1? "":std::to_string(indices[1])));
+	outputGenerator.append(child1, "Child 1: ");
+	outputGenerator.append(child2, "Child 2: ");
 
 	return std::make_pair(Unit(hypergraph,child1), Unit(hypergraph,child2));
 }
@@ -313,14 +404,49 @@ bool Population::iterationCriterion()
 }
 
 
+int Population::getOperatorCombination()
+{
+	return operatorCombination;
+}
+
+void Population::setOperatorCombination(int _combination)
+{
+	operatorCombination = _combination;
+}
+
 std::pair<Unit, Unit> Population::crossover(std::pair<Unit, Unit> parents)
 {
-	if (operatorCombination > 11)
+	if (operatorCombination % 18 < 12)
 	{
+		crossoverPoints = operatorCombination % 18 < 6 ? 1 : 2;
 		return multipointCrossover(parents);
 	}
 	else
 	{
 		return uniformCrossover(parents);
+	}	
+}
+
+
+void Population::mutateAndAdjust(std::pair<Unit, Unit>& _children)
+{
+	if (_children.first.mutate(0.05))
+	{
+		outputGenerator.append(_children.first, "Child 1 mutated");
 	}
+	if(_children.first.adjustToAllowed())
+	{
+		outputGenerator.append(_children.first, "Child 1 adjusted");
+	}
+
+	if (_children.second.mutate(0.05))
+	{
+		outputGenerator.append(_children.second, "Child 2 mutated");
+	}
+
+	if (_children.second.adjustToAllowed())
+	{
+		outputGenerator.append(_children.second, "Child 2 adjusted");
+	}
+		
 }
