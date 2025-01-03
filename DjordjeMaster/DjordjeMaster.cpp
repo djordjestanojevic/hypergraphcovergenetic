@@ -10,41 +10,100 @@
 #include"OutputGenerator.h"
 #include<utility>
 
-int main()
+void generatePopulations(int _i)
 {
-    //std::vector<int> vertices = {0, 1, 2, 3, 4, 5,6,7,8,9};
-    //std::vector<std::vector<int>> hyperedges = { {0},{0,1}, {0,2,3},{1},{0,4,5}, {1,6},{6},{6,7},{6,8},{7},{9,3},{8}, {8,5} };
-    //Hypergraph graph = Hypergraph(vertices, hyperedges);
-    
-    
-
-    FileParser fileParser = FileParser("C:/Users/Djordje/OneDrive/Desktop/demofile2.txt");
-    //std::vector<int> array = { 1,0,0,1,1,0 };
+    std::string inputLocation = "C:/Users/Djordje/OneDrive/Desktop/demofile" + std::to_string(_i) + ".txt";
+    FileParser fileParser = FileParser(inputLocation);
     Hypergraph graph = fileParser.getHypergraph();
-    
 
-    Population population = Population(graph, 6, 0.3 );
-    
-    population.generationLimit = 20;
-    population.plateauLimit = 5;
-    population.valueLimit = 4;
-    population.uniformCrossoverProbability = 0.5;
-
-    std::vector<int> combinations = {8,23,37,67};
-    for (auto i: combinations)
+    for (int popSize = 30; popSize <= 50; popSize += 10)
     {
-        population.setOperatorCombination(i);
-        population.evolve();
-        break;
-    }
-    
-    for (auto v : population.bestUnit.unit)
-    {
-        std::cout << v << " ";
-    }
+        for (int i = 5; i < 50; i++)
+        {
+            std::string location = "C:/Users/Djordje/OneDrive/Desktop/InitGen/pop" + std::to_string(popSize) + "_" + std::to_string(_i) + "_" + std::to_string(i) + ".csv";
+            Population population = Population(graph, popSize, popSize == 50 ? 0.0783 : 0.8, location);
 
-    std::cout << "\nFitness: " << population.bestUnit.fitness() << " ";
+            population.outputGenerator.append(std::to_string(graph.getVertices().size()));
+            population.printGeneration(false);
+        }
+    }
 }
+
+void initializationAnalysis()
+{
+    FileParser fileParser = FileParser("C:/Users/Djordje/OneDrive/Desktop/demofile7.txt");
+    Hypergraph graph = fileParser.getHypergraph();
+
+    OutputGenerator outputGenerator = OutputGenerator("C:/Users/Djordje/OneDrive/Desktop/Init/50/init50_1494_0775.csv");
+    outputGenerator.append("Alele prob, Max fit, Avg fit, Diversity");
+
+    for (double r = 0.767; r <= 0.79; r += 0.0167)
+    {
+        for (int i = 0; i < 50; i++)
+        {
+
+            Population population = Population(graph, 50, r, "");
+
+            int fitSum = 0;
+
+            for (auto unit : population.population)
+            {
+                if (unit.fitness() > population.maxFitness)
+                {
+                    population.maxFitness = unit.fitness();
+                }
+                fitSum += unit.fitness();
+            }
+
+            outputGenerator.append(std::to_string(r) + ", " + std::to_string(population.maxFitness) + ", " + std::to_string(fitSum / 50) + ", " + std::to_string(std::count_if(population.aleleSum.begin(), population.aleleSum.end(), [population](int i) { return (i < population.population.size()) && (i > 9 * (population.population.size() / 10)); })));
+
+        }
+    }
+
+}
+
+void evolvePopulation()
+{    
+    FileParser fileParser = FileParser("C:/Users/Djordje/OneDrive/Desktop/demofile4.txt");
+    Hypergraph graph = fileParser.getHypergraph();
+    for (int l = 0; l<5;l++)
+    {
+        fileParser = FileParser("C:/Users/Djordje/OneDrive/Desktop/InitGen/pop30_4_"+std::to_string(l) + ".csv");
+        std::vector<std::vector<int>> initialPop = fileParser.parsePopulationFile(graph);
+        Population population = Population(graph, initialPop, "C:/Users/Djordje/OneDrive/Desktop/Results/30/4/pop30_4_" + std::to_string(l) + ".csv");
+
+        population.outputGenerator.append("Operator combination, Generation, Plateau counter, Maximum fitness, Average fitness, Diversity, Homogeneity");
+        population.generationLimit = 80;
+        population.plateauLimit = 8;
+        population.uniformCrossoverProbability = 0.5;
+        population.homogeneityCoef = 0.8;
+    
+        for (int i = 0; i < 32; i++)
+        {
+            population.setOperatorCombination(i);
+            population.evolve();
+            population.setPopulation(initialPop);
+            population.reset();
+        
+        }
+    }
+}
+
+int main()
+{        
+    //FileParser fileParser = FileParser("C:/Users/Djordje/OneDrive/Desktop/demofile7.txt");
+    //Hypergraph graph = fileParser.getHypergraph();
+    
+    evolvePopulation();
+    /*
+    for (int i = 3; i < 8; i++)
+    {
+        generatePopulations(i);
+    }
+    */
+}
+
+
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu

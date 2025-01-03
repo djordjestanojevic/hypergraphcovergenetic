@@ -20,11 +20,45 @@ std::vector<std::string> FileParser::split(std::string s, std::string delimiter)
 FileParser::FileParser(std::string _location) :
 	location(_location)
 {
-	parseFile();
+	parseGraphFile();
 	hypergraph = Hypergraph(vertices, hyperedges);
 }
 
-void FileParser::parseFile()
+
+std::vector<std::vector<int>> FileParser::parsePopulationFile(Hypergraph _graph)
+{
+	std::ifstream input_stream(location);
+	std::vector<std::vector<int>> populationArray;
+	int popSize = stoi(split(location, "/")[6].substr(3,2));
+	if (input_stream.is_open())
+	{
+		std::string line;
+
+		// one line
+		getline(input_stream, line);
+		int numberOfVertices = stoi(line);
+		
+		int lineNumber = 0;
+		// extract all the text from the input file
+		while (getline(input_stream, line) && lineNumber < popSize)
+		{
+			int pos = lineNumber < 10 ?	3:4;
+			std::vector<int> hyperedge = {};
+
+			for (auto gene : line.substr(pos,numberOfVertices))
+			{
+				hyperedge.push_back((int) gene - '0');
+			}
+
+			populationArray.push_back(hyperedge);
+			lineNumber++;
+		}
+	}
+
+	return populationArray;
+}
+
+void FileParser::parseGraphFile()
 {
 	std::ifstream input_stream(location);
 	if (input_stream.is_open())

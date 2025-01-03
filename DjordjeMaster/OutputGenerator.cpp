@@ -8,14 +8,17 @@ OutputGenerator::OutputGenerator(std::string _location) :
 }
 
 OutputGenerator::OutputGenerator(const OutputGenerator& _outputGenerator) :
-outputFile()
+	location(_outputGenerator.location)
 {
-	
+	createFile();
 }
+
+
+//OutputGenerator OutputGenerator::operator=(OutputGenerator& _outputGenerator);
+
 void OutputGenerator::createFile()
 {
 	outputFile.open(location);
-	outputFile << "Evolution.\n";
 }
 void OutputGenerator::append(std::string _label)
 {

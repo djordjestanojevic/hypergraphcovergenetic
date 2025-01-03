@@ -5,12 +5,16 @@
 #include"Unit.h"
 #include"OutputGenerator.h"
 #include<random>
+#include<string>
+
 class Population
 {
 public:
 	Population();
-	Population(Hypergraph _hypergraph, int _populationSize, double _alleleProbability);
-	
+	Population(Hypergraph _hypergraph, std::vector<std::vector<int>> _population, std::string _location);
+	Population(Hypergraph _hypergraph, int _populationSize, double _alleleProbability, std::string _location);
+
+
 	void createPopulation();
 	void evolve();
 
@@ -33,26 +37,33 @@ public:
 	bool iterationCriterion();
 	bool plateauCriterion();
 	bool valueCriterion();
+	bool homogeneityCriterion();
 
 	int getOperatorCombination();
 	void setOperatorCombination(int _combination);
+	void reset();
 
-	void printGeneration();
+	void setPopulation(std::vector<std::vector<int>> _array);
 
+	void printGeneration(bool _statistics);
+	void calculateDiversity();
 
 	std::vector<Unit>	population;
 	std::vector<Unit>	newPopulation;
+	std::vector<int>	aleleSum;
 	Unit				bestUnit;
 	int					generationLimit, plateauLimit, valueLimit;
 	int					k, crossoverPoints;
-	double				uniformCrossoverProbability;
+	double				uniformCrossoverProbability, homogeneityCoef;
 	OutputGenerator		outputGenerator;
+
+	int					maxFitness;
 private:
 	Hypergraph			hypergraph;
 	int					populationSize;
 	int					generation, plateauCounter;
-	int					maxFitness;
 	double				alleleProbability;
+	double				mutationParameter;
 	int					operatorCombination;
 };
 

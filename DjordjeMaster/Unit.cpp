@@ -57,7 +57,7 @@ bool Unit::adjustToAllowed()
 	int maxDegreeIndex = hypergraph.getVerticesByDegrees()[0];
 
 	bool ret = false;
-	// For any connected graph with n vertices, any combination of n-1 vertices will result in a cover
+	// For any hypergraph without isolated nodes with n vertices, any combination of n-1 vertices will result in a hyperedge cover
 	// so the situation where all vertices are part of cover is impossible and index could not go out of bounds
 
 	while (!hypergraph.isCovering(unit))
