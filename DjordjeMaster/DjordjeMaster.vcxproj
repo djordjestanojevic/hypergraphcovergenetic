@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DjordjeMaster.cpp" />
+    <ClCompile Include="Main.cpp" />
     <ClCompile Include="FileParser.cpp" />
     <ClCompile Include="OutputGenerator.cpp" />
     <ClCompile Include="Population.cpp" />

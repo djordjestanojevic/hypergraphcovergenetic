@@ -6,26 +6,66 @@ class Hypergraph
 {
 
 public:
-	Hypergraph();
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	Hypergraph() = default;
+
+	/// <summary>
+	/// Constructor
+	/// </summary>
+	/// <param name="_vertices">std::vector<int></param>
+	/// <param name="_hyperedges">std::vector<std::vector<int>></param>
 	Hypergraph(std::vector<int> _vertices, std::vector<std::vector<int>> _hyperedges);
 
-	bool cmp(int _a, int _b);
+	/// <summary>
+	/// Checks whether array of vertices covers hypergraph
+	/// </summary>
+	/// <param name="_array">std::vector<int></param>
+	/// <returns>bool</returns>
 	bool isCovering(std::vector<int> _array);
 	
-
+	/// <summary>
+	/// Vertices getter
+	/// </summary>
+	/// <returns>std::vector<int></returns>
 	std::vector<int> getVertices();
+
+	/// <summary>
+	/// Hyperedges getter
+	/// </summary>
+	/// <returns>std::vector<std::vector<int>></returns>
 	std::vector<std::vector<int>> getHyperedges();
+
+	/// <summary>
+	/// VerticesByDegrees getter
+	/// </summary>
+	/// <returns>std::vector<int></returns>
 	std::vector<int> getVerticesByDegrees();
+
+
+	/// <summary>
+	/// Degrees getter
+	/// </summary>
+	/// <returns>std::vector<int></returns>
+	std::vector<int> getDegrees();
+
+
+	/// <summary>
+	/// NumberOfVertices getter
+	/// </summary>
+	/// <returns>int</returns>
+	const int getNumberOfVertices() const;
+
+private:
+	std::vector<int>				vertices;
+	std::vector<std::vector<int>>	hyperedges;	
+	std::vector<int>				verticesByDegrees;
 	std::vector<int>				degrees;
 
-	int numberOfVertices, numberOfHyperedges;
-private:
-
-	std::vector<int>				vertices;
-	std::vector<std::vector<int>>	hyperedges;
-	
-	std::vector<int>				verticesByDegrees;
-
+	/// <summary>
+	/// Initializes degrees array
+	/// </summary>
 	void initDegrees();
 	
 };

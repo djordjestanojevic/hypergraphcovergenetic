@@ -1,15 +1,15 @@
 #include "Unit.h"
 #include<numeric>
 
+std::mt19937 Unit::generator(std::random_device{}());
+
 Unit::Unit(Hypergraph _hypergraph, double _alleleProbability):
 	hypergraph(_hypergraph),
 	alleleProbability(_alleleProbability)
 {
-	std::random_device					device;
-	std::mt19937						generator(device());
 	std::uniform_real_distribution<>	distribution(0, 1.0);
 
-	for (int i = 0; i < _hypergraph.getVertices().size(); i++)
+	for (int i = 0; i < _hypergraph.getNumberOfVertices(); ++i)
 	{
 		double r = distribution(generator);
 		unit.push_back(r < _alleleProbability ? 1: 0);
@@ -24,10 +24,8 @@ Unit::Unit(Hypergraph _hypergraph, double _alleleProbability):
 /// <param name="_r">double</param>
 bool Unit::mutate(double _r)
 {
-	std::random_device					device;
-	std::mt19937						generator(device());
 	std::uniform_real_distribution<>	distribution(0, 1.0);
-	std::uniform_int_distribution<>		intDistribution(0, unit.size() - 1);
+	std::uniform_int_distribution<>		intDistribution(0,(int) unit.size() - 1);
 	double								r = distribution(generator);
 	bool ret = false;
 
@@ -67,19 +65,14 @@ bool Unit::adjustToAllowed()
 			unit[hypergraph.getVerticesByDegrees()[i]] = 1;		
 			ret = true;
 		}
-		i++;
+		++i;
 		maxDegreeIndex = hypergraph.getVerticesByDegrees()[i];
 	}
 
 	return ret;
 }
 
-
-/// <summary>
-/// Determines unit quality
-/// </summary>
-/// <returns>int</returns>
 int Unit::fitness()
 {
-	return unit.size() - std::accumulate(unit.begin(), unit.end(), 0);
+	return (int) unit.size() - std::accumulate(unit.begin(), unit.end(), 0);
 }

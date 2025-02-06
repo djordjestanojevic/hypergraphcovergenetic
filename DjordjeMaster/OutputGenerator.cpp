@@ -13,9 +13,6 @@ OutputGenerator::OutputGenerator(const OutputGenerator& _outputGenerator) :
 	createFile();
 }
 
-
-//OutputGenerator OutputGenerator::operator=(OutputGenerator& _outputGenerator);
-
 void OutputGenerator::createFile()
 {
 	outputFile.open(location);
@@ -29,6 +26,7 @@ void OutputGenerator::append(std::string _label)
 void OutputGenerator::append(Unit _unit, std::string _label)
 {
 	outputFile << _label;
+
 	for (auto v : _unit.unit)
 	{
 		outputFile << v;
@@ -40,6 +38,7 @@ void OutputGenerator::append(Unit _unit, std::string _label)
 void OutputGenerator::append(std::vector<int> _unit, std::string _label)
 {
 	outputFile << _label;
+
 	for (auto v : _unit)
 	{
 		outputFile << v;
