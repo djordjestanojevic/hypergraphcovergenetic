@@ -27,6 +27,9 @@ std::vector<std::string> FileParser::split(std::string s, std::string delimiter)
 	return res;
 }
 
+
+// Naredni kod (metoda parsePopulationFile) preuzet je sa https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
+
 std::vector<std::vector<int>> FileParser::parsePopulationFile(Hypergraph _graph)
 {
 	std::ifstream					input_stream(location);
